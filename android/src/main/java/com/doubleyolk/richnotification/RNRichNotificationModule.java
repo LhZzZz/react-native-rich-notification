@@ -1,5 +1,5 @@
 
-package com.quenice.cardview;
+package com.doubleyolk.richnotification
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
