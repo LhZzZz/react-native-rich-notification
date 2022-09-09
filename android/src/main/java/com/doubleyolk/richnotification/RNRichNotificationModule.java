@@ -1,5 +1,5 @@
 
-package com.doubleyolk.richnotification
+package com.doubleyolk.richnotification;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;

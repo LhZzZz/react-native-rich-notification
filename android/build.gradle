@@ -2,6 +2,7 @@
 buildscript {
     repositories {
         jcenter()
+        maven { url 'https://developer.huawei.com/repo/' }
     }
 
     dependencies {
@@ -32,5 +33,5 @@ repositories {
 
 dependencies {
     compile 'com.facebook.react:react-native:+'
+    implementation 'com.huawei.hms:push:6.5.0.300'//集成华为推送服务
 }
-  
