@@ -38,6 +38,9 @@ dependencies {
     compile 'com.facebook.react:react-native:+'
     implementation fileTree(dir: 'libs', include: ['*.aar'])
     implementation 'com.huawei.hms:push:6.5.0.300'//集成华为推送服务
-
-//    implementation (name: 'HonorPushSDK-release-7.0.1.103', ext: 'aar')
+    //集成oppo推送需要
+    implementation 'com.google.code.gson:gson:2.6.2'
+    implementation 'commons-codec:commons-codec:1.6'
+    implementation 'androidx.annotation:annotation:1.1.0'
+    //
 }
