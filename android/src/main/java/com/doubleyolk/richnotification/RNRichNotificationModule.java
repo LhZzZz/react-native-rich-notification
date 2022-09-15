@@ -7,6 +7,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
 import com.heytap.msp.push.HeytapPushManager;
 import com.hihonor.push.sdk.HonorPushClient;
+import com.meizu.cloud.pushsdk.PushManager;
 
 public class RNRichNotificationModule extends ReactContextBaseJavaModule {
 
@@ -19,8 +20,9 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
     HonorPushClient.getInstance().init(this.reactContext, true);
     //初始化OPPO的推送服务
     HeytapPushManager.init(this.reactContext,true);
-    //注册服务
+    //注册OPPO服务
     HeytapPushManager.register(this.reactContext,"fdc3536af7d6454498f4b5ab8bd9145a","bdb053b0645a4259aef34def720a893a",new OppoPushService());
+    PushManager.register(this.reactContext,"150022","2269bbfee74641df96b225460e1592b8");
   }
 
   @Override

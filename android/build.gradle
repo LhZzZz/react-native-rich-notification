@@ -38,9 +38,12 @@ dependencies {
     compile 'com.facebook.react:react-native:+'
     implementation fileTree(dir: 'libs', include: ['*.aar'])
     implementation 'com.huawei.hms:push:6.5.0.300'//集成华为推送服务
-    //集成oppo推送需要
+    //集成oppo推送
     implementation 'com.google.code.gson:gson:2.6.2'
     implementation 'commons-codec:commons-codec:1.6'
     implementation 'androidx.annotation:annotation:1.1.0'
     //
+
+    //集成魅族推送
+    implementation 'com.meizu.flyme.internet:push-internal:4.1.4'
 }
