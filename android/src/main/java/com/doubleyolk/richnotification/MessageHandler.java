@@ -34,6 +34,8 @@ public class MessageHandler extends ReactContextBaseJavaModule {
      */
     public void initMessageHandler(ReactContext context){
         this.context = context;
+
+        //因为app的监听方法还未初始化，需要延时2s再去处理离线消息
         new Handler().postDelayed(new Runnable() {
         @Override
         public void run() {
@@ -69,7 +71,7 @@ public class MessageHandler extends ReactContextBaseJavaModule {
                     }
 
                     this.context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                            .emit("Hw_msg", map);
+                            .emit("onNotificationTap", map);
                 }
             } else {
                 Log.i("HandleIntent", "intent is null");
