@@ -27,13 +27,18 @@ import com.facebook.react.bridge.ReactContext;
 public class HwPushService extends HmsMessageService {
     private static final String TAG = "PushDemoLog";
     private static final String MESSAGE_TAG = "RemoteMessage";
-    private ReactApplicationContext context;
+    private ReactContext context;
     private String deviceToken;
-    final Messenger mMessenger= super.a;
+    private Messenger mMessenger;
     private ReactInstanceManager mReactInstanceManager;
     private Callback getTokenCallback;
 
     private final IBinder mBinder = new LocalBinder();
+
+
+    public HwPushService() {
+
+    }
 
     public class LocalBinder extends Binder {
         public HwPushService getService() {
@@ -47,42 +52,20 @@ public class HwPushService extends HmsMessageService {
         return mBinder;
     }
 
-    /** method for clients */
-//    public int getServiceParem(){
-//        return mserviceparam;
-//    }
 
-
-//    @Override
-//    public IBinder onBind(Intent intent) {
-//        return mMessenger.getBinder();
-//    }
-
-
-    public class IncomingHandler extends Handler {
-        public void handleMessage(Message msg){
-            super.handleMessage(msg);
-//            Bundle bundle =  msg.getData();
-//            if (bundle!=null){
-//                for (String key : bundle.keySet()) {
-//                    String content = bundle.getString(key);
-//                    Log.i("HandleIntent", "key = " + key + ", content = " + content);
-//                }
-//            }
-        }
-
-    }
-
-    public HwPushService() {
-
-    }
-
-
-
+    /**
+     * 获取device Token
+     * @return
+     */
     public String getDeviceToken(){
         return this.deviceToken;
     }
 
+    /**
+     * 重新获取token
+     * @param callback
+     * @param reactContext
+     */
     public void getToken(Callback callback, ReactContext reactContext) {
         getTokenCallback = callback;
         // 创建一个新线程
@@ -99,11 +82,11 @@ public class HwPushService extends HmsMessageService {
                     // 判断token是否为空
                     if(!TextUtils.isEmpty(token)) {
                         WritableMap map = Arguments.createMap();
-                        map.putString("token",token);
+                        map.putString("data",token);
+                        map.putString("brand",Build.BRAND);
                         if (getTokenCallback!=null){
                             getTokenCallback.invoke(map);
                         }
-//                        sendRegTokenToServer(token);
                     }
                 } catch (ApiException e) {
                     Log.e(TAG, "get token failed, " + e);
@@ -111,9 +94,7 @@ public class HwPushService extends HmsMessageService {
             }
         }.start();
     }
-    private void sendRegTokenToServer(String token) {
-        Log.i(TAG, "sending token to server. token:" + token);
-    }
+
 
     @Override
     public void onNewToken(String token, Bundle bundle) {
@@ -131,12 +112,24 @@ public class HwPushService extends HmsMessageService {
     }
 
     /**
-     * 收到消息的回调
+     * 收到透传消息的回调
      */
     @Override
     public void onMessageReceived(RemoteMessage message){
-        RemoteMessage.Notification notification = message.getNotification();
-        Log.i(MESSAGE_TAG, notification.getTitle());
+        String data = message.getData();
+        Log.i(MESSAGE_TAG, data);
+        if (this.context!=null){
+            this.context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onHuaWeiRemoteMessage", data);
+        }
+    }
+
+
+    /**
+     * 初始化服务，主要用于获取context
+     * @param context
+     */
+    public void initService(ReactContext context){
+        this.context = context;
     }
 
 }

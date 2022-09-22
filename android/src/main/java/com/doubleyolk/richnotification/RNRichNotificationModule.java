@@ -28,11 +28,13 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
   private static final String TAG = "RNRichNotification";
   private final ReactApplicationContext reactContext;
   private HwPushService hwPushService;//华为推送服务类
-  private Messenger mMessenger;
+
+  private String brand;//手机厂商名
 
   public RNRichNotificationModule(ReactApplicationContext reactContext) {
     super(reactContext);
     this.reactContext = reactContext;
+
     //初始化荣耀的推送服务
     HonorPushClient.getInstance().init(this.reactContext, true);
     //初始化OPPO的推送服务
@@ -42,9 +44,6 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
     HeytapPushManager.register(this.reactContext,"fdc3536af7d6454498f4b5ab8bd9145a","bdb053b0645a4259aef34def720a893a",new OppoPushService());
     //注册魅族推送服务
     PushManager.register(this.reactContext,"150022","2269bbfee74641df96b225460e1592b8");
-
-    Intent intent = new Intent(reactContext, HwPushService.class);
-    reactContext.bindService(intent, hwPushConnection, Context.BIND_AUTO_CREATE);
   }
 
   @Override
@@ -54,10 +53,25 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
 
   /**
    * 初始化推送服务
+   * @param appId
+   * @param appKey
+   * @param appSecret
    */
   @ReactMethod
-  public void initPush(){
-
+  public void initPush(String appId, String appKey, String appSecret, Callback callback){
+    brand = Build.BRAND;
+    WritableMap map = Arguments.createMap();
+    String msg = "暂不支持该手机厂商";
+    if (brand.equals("HUAWEI")){
+      Log.i(TAG,appId + " "+appKey +" "+ appSecret);
+      Intent intent = new Intent(reactContext, HwPushService.class);
+      reactContext.bindService(intent, hwPushConnection, Context.BIND_AUTO_CREATE);
+      msg = "初始化华为推送服务";
+    }
+    map.putString("msg",msg);
+    if (callback != null){
+      callback.invoke(map);
+    }
   }
 
   /**
@@ -73,7 +87,7 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
 
 
   /**
-   * hw的service连接，用于获取service实例
+   * 华为的service连接，用于获取service实例
    */
   private ServiceConnection hwPushConnection = new ServiceConnection() {
 
@@ -82,6 +96,7 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
                                    IBinder service) {
       HwPushService.LocalBinder binder = (HwPushService.LocalBinder) service;
       hwPushService = binder.getService();
+      hwPushService.initService(reactContext);
     }
 
     @Override
