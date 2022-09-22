@@ -2,6 +2,8 @@ import React from 'react-native'
 import {DeviceEventEmitter} from 'react-native'
 import { NativeModules } from 'react-native';
 const { RNRichNotification } = NativeModules;
+import DeviceInfo from 'react-native-device-info';
+
 
 
 export enum EventType {
@@ -32,6 +34,15 @@ export default class RichNotification {
      */
     static getRegisterId(callback){
         RNRichNotification.getRegisterId(callback);
+    }
+
+
+    /**
+     * 初始化推送服务, 必须先初始化后再调用其它方法
+     * @param callback 
+     */
+    static initPush(callback?){
+        console.warn(DeviceInfo.getBrand());
     }
 }
 
