@@ -5,8 +5,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -27,7 +29,11 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
 
   private static final String TAG = "RNRichNotification";
   private final ReactApplicationContext reactContext;
-  private HwPushService hwPushService;//华为推送服务类
+  private HwPushService hwPushService;//华为推送服务对象, 可访问service中的公共方法, 弃用!!!
+  private HwPushHandler hwPushHandler;//华为推送服务客户端，与服务端通信
+
+  private OppoPushService oppoPushService;//oppo推送服务对象, 可访问service中的公共方法
+  private OppoPushService.LocalBinder oppoBinder; //oppo的binder对象, 可访问service的资源
 
   private String brand;//手机厂商名
 
@@ -35,15 +41,12 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
     super(reactContext);
     this.reactContext = reactContext;
 
-    //初始化荣耀的推送服务
-    HonorPushClient.getInstance().init(this.reactContext, true);
-    //初始化OPPO的推送服务
-    HeytapPushManager.requestNotificationPermission();
-    HeytapPushManager.init(this.reactContext,true);
-    //注册OPPO服务
-    HeytapPushManager.register(this.reactContext,"fdc3536af7d6454498f4b5ab8bd9145a","bdb053b0645a4259aef34def720a893a",new OppoPushService());
-    //注册魅族推送服务
-    PushManager.register(this.reactContext,"150022","2269bbfee74641df96b225460e1592b8");
+//    //初始化荣耀的推送服务
+//    HonorPushClient.getInstance().init(this.reactContext, true);
+//    //OPPO获取推送权限
+//    HeytapPushManager.requestNotificationPermission();
+//    //注册魅族推送服务
+//    PushManager.register(this.reactContext,"150022","2269bbfee74641df96b225460e1592b8");
   }
 
   @Override
@@ -64,9 +67,16 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
     String msg = "暂不支持该手机厂商";
     if (brand.equals("HUAWEI")){
       Log.i(TAG,appId + " "+appKey +" "+ appSecret);
-      Intent intent = new Intent(reactContext, HwPushService.class);
-      reactContext.bindService(intent, hwPushConnection, Context.BIND_AUTO_CREATE);
+      hwPushHandler = new HwPushHandler(reactContext);
+      hwPushHandler.initService();
       msg = "初始化华为推送服务";
+    }else if (brand.equals("OPPO")){
+      //初始化OPPO的推送服务
+      HeytapPushManager.init(this.reactContext,true);
+      //注册OPPO服务
+      HeytapPushManager.register(this.reactContext,"fdc3536af7d6454498f4b5ab8bd9145a","bdb053b0645a4259aef34def720a893a",new OppoPushService());
+      Intent intent = new Intent(reactContext, OppoPushService.class);
+      reactContext.bindService(intent, oppoPushServiceConnection, Context.BIND_AUTO_CREATE);
     }
     map.putString("msg",msg);
     if (callback != null){
@@ -81,19 +91,24 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void getRegisterId(Callback callback){
     Log.i(TAG, Build.BRAND);
-    String registerId = Build.BRAND;
-    hwPushService.getToken(callback, reactContext);
+    if (brand.equals("HUAWEI")){
+      hwPushHandler.getDeviceToken(callback);
+    }else if (brand.equals("OPPO")){
+      oppoPushService.getRegisterId(callback);
+      Log.i(TAG,"binder register"+ oppoBinder.getCachedRegisterId());
+    }
+
   }
 
 
   /**
    * 华为的service连接，用于获取service实例
+   * @deprecated 该获取service的方式, 已舍弃
    */
   private ServiceConnection hwPushConnection = new ServiceConnection() {
 
     @Override
-    public void onServiceConnected(ComponentName className,
-                                   IBinder service) {
+    public void onServiceConnected(ComponentName className, IBinder service) {
       HwPushService.LocalBinder binder = (HwPushService.LocalBinder) service;
       hwPushService = binder.getService();
       hwPushService.initService(reactContext);
@@ -104,5 +119,20 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
 
     }
   };
+
+  private ServiceConnection oppoPushServiceConnection = new ServiceConnection() {
+    @Override
+    public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+      oppoBinder = (OppoPushService.LocalBinder) iBinder;
+      oppoPushService = oppoBinder.getService();
+      oppoPushService.initService(reactContext);
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName componentName) {
+
+    }
+  };
+
 
 }

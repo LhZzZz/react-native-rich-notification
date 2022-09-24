@@ -60,7 +60,7 @@ export default class RichNotification {
 
     /**
      * 初始化推送服务, 必须先初始化后再调用其它方法
-     * 不同厂商需要不同的参数，不用都传
+     * 不同厂商需要不同的参数，不用都传, 华为可都不传
      * @param appId 厂商平台注册的appid
      * @param appKey 厂商平台注册的appKey  
      * @param appSecret 厂商平台注册的appSecret
