@@ -86,6 +86,7 @@ public class HwPushService extends HmsMessageService {
                     Intent var10001 = var2 = new Intent();
                     var2.putExtras(var3);
                     var10001.putExtra("inputType", var3.getInt("inputType", -1));
+//                    HwPushService.this.handleIntentMessage(var2);
                     HwPushService.this.handleIntentMessage(var2);
                 }
 
