@@ -2,17 +2,25 @@
 {
   "name": "react-native-rich-notification",
   "version": "1.0.0",
-  "description": "",
+  "description": "集成Android各厂商推送服务，只支持Android端使用",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "react-native"
+    "react-native",
+    "notification",
+    "huawei",
+    "oppo",
+    "mi",
   ],
-  "author": "",
+  "author": "LhZzZz",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LhZzZz/react-native-rich-notification.git"
+  },
   "license": "",
   "peerDependencies": {
-    "react-native": "^0.41.2"
+    "react-native": "*"
   }
 }

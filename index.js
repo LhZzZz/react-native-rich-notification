@@ -1,6 +1,2 @@
-
-import { NativeModules } from 'react-native';
-
-const { RNRichNotification } = NativeModules;
-
-export default RNRichNotification;
+import RichNotification from './src/richNotification';
+export default RichNotification;
