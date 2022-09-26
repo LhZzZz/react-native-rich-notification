@@ -35,18 +35,15 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
   private OppoPushService oppoPushService;//oppo推送服务对象, 可访问service中的公共方法
   private OppoPushService.LocalBinder oppoBinder; //oppo的binder对象, 可访问service的资源
 
-  private String brand;//手机厂商名
+  private String brand = Build.BRAND;;//手机厂商名
 
   public RNRichNotificationModule(ReactApplicationContext reactContext) {
     super(reactContext);
     this.reactContext = reactContext;
-
-//    //初始化荣耀的推送服务
-//    HonorPushClient.getInstance().init(this.reactContext, true);
-//    //OPPO获取推送权限
-//    HeytapPushManager.requestNotificationPermission();
-//    //注册魅族推送服务
-//    PushManager.register(this.reactContext,"150022","2269bbfee74641df96b225460e1592b8");
+    //OPPO获取推送权限
+    if (brand.equals("OPPO")){
+      HeytapPushManager.requestNotificationPermission();
+    }
   }
 
   @Override
@@ -62,7 +59,6 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
    */
   @ReactMethod
   public void initPush(String appId, String appKey, String appSecret, Callback callback){
-    brand = Build.BRAND;
     WritableMap map = Arguments.createMap();
     String msg = "暂不支持该手机厂商";
     if (brand.equals("HUAWEI")){
@@ -74,9 +70,14 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
       //初始化OPPO的推送服务
       HeytapPushManager.init(this.reactContext,true);
       //注册OPPO服务
-      HeytapPushManager.register(this.reactContext,"fdc3536af7d6454498f4b5ab8bd9145a","bdb053b0645a4259aef34def720a893a",new OppoPushService());
+      HeytapPushManager.register(this.reactContext,appKey,appSecret,new OppoPushService());
       Intent intent = new Intent(reactContext, OppoPushService.class);
       reactContext.bindService(intent, oppoPushServiceConnection, Context.BIND_AUTO_CREATE);
+      msg = "初始化oppo推送服务";
+    }else if (brand.equals("HORNOR")){
+      //初始化荣耀的推送服务
+      HonorPushClient.getInstance().init(this.reactContext, true);
+      msg = "初始化荣耀的推送服务";
     }
     map.putString("msg",msg);
     if (callback != null){
@@ -94,10 +95,11 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
     if (brand.equals("HUAWEI")){
       hwPushHandler.getDeviceToken(callback);
     }else if (brand.equals("OPPO")){
-      oppoPushService.getRegisterId(callback);
-      Log.i(TAG,"binder register"+ oppoBinder.getCachedRegisterId());
+      if (oppoPushService != null){
+        oppoPushService.getRegisterId(callback);
+        Log.i(TAG,"binder register"+ oppoBinder.getCachedRegisterId());
+      }
     }
-
   }
 
 

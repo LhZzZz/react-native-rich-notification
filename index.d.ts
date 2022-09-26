@@ -1,5 +1,41 @@
 
 
+
+/**
+ * 推送服务配置信息
+ */
+export type ConfigInfo = {
+    appId?:string,
+    appKey?:string,
+    appSecret?:string
+}
+
+
+/**
+ * 初始化配置信息
+ */
+
+export type InitPushConfig = {
+    /**
+     * 华为可不传
+     */
+    huawei?:ConfigInfo,
+    /**
+     * oppo需要appkey,appsecret
+     */
+    oppo?:ConfigInfo,
+    /**
+     * 魅族需要appid,appsecret
+     */
+    meizu?:ConfigInfo,
+    /**
+     * 荣耀不用传，需要在AndroidManifest.xml配置appid即可
+     */
+    honor?:ConfigInfo,
+    vivo?:ConfigInfo,
+    mi?:ConfigInfo,
+}
+
 /**
  * 手机的厂商推送服务注册信息
  */
@@ -74,7 +110,7 @@ export default class RichNotification {
      * @param appSecret 厂商平台注册的appSecret
      * @param callback 结果回调
      */
-    static initPush(appId:string,appKey:string,appSecret:string,callback?:initPushCall)
+    static initPush(config:InitPushConfig,callback?:initPushCall)
     
     
 }

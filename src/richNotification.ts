@@ -3,7 +3,7 @@ import {DeviceEventEmitter} from 'react-native'
 import { NativeModules } from 'react-native';
 const { RNRichNotification } = NativeModules;
 import DeviceInfo from 'react-native-device-info';
-import { DeviceRegisterInfo, getRegisterIdCallback, initPushCall, initPushCallback } from 'react-native-rich-notification';
+import { DeviceRegisterInfo, getRegisterIdCallback, initPushCall, initPushCallback,InitPushConfig } from 'react-native-rich-notification';
 
 
 
@@ -60,17 +60,25 @@ export default class RichNotification {
 
     /**
      * 初始化推送服务, 必须先初始化后再调用其它方法
-     * 不同厂商需要不同的参数，不用都传, 华为可都不传
+     * 不同厂商需要不同的参数，不用都传, 华为,荣耀可不传
      * @param appId 厂商平台注册的appid
      * @param appKey 厂商平台注册的appKey  
      * @param appSecret 厂商平台注册的appSecret
      * @param callback 结果回调
      */
-    static initPush(appId:string,appKey:string,appSecret:string,callback?:initPushCall){               
-        const _appId= appId??""
-        const _appKey = appKey??""
-        const _appSecret = appSecret??""
-        RNRichNotification.initPush(_appId, _appKey,_appSecret,callback)
+    static initPush(config:InitPushConfig,callback?:initPushCall){  
+        const Brand = DeviceInfo.getBrand().toLowerCase()          
+        //华为和荣耀推送配置信息应配置在AndroidManifest.xml下           
+        if(config[Brand]){
+            const {appId = "", appKey = "", appSecret = ""} = config[Brand];
+            RNRichNotification.initPush(appId, appKey,appSecret,callback)
+        }else if( Brand === "huawei" || Brand === "hornor"){
+            RNRichNotification.initPush("", "","",callback)
+        } else{
+            const msg = '请提供'+Brand+'配置信息'
+            console.warn(msg)
+            callback&&callback({status:101,msg:msg})
+        }        
     }
 }
 
