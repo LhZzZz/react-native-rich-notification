@@ -102,6 +102,13 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
     }
   }
 
+  @ReactMethod
+  public void setBadge(int badge){
+    if (brand.equals("HUAWEI")){
+      hwPushHandler.setBadge(badge);
+    }
+  }
+
 
   /**
    * 华为的service连接，用于获取service实例
