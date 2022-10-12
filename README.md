@@ -96,26 +96,231 @@ public class MainActivity extends ReactActivity {
 2. android/app/AndroidManifest.xml 添加
 
    ```xml
+   <!-- 华为推送桌面角标权限 -->
+       <uses-permission android:name="com.huawei.android.launcher.permission.CHANGE_BADGE" />
+   
    <service android:name="com.doubleyolk.richnotification.HwPushService" android:exported="false">
        <intent-filter>
            <action android:name="com.huawei.push.action.MESSAGING_EVENT"/>
        </intent-filter>
    </service>
    ```
-
+   
    ```xml
    <meta-data
        android:name="push_kit_auto_init_enabled"
        android:value="false" />
    ```
 
-​		
+**OPPO**
+
+ 1. 按官方文档进行配置: https://open.oppomobile.com/new/developmentDoc/info?id=11221
+
+ 2. android/app/AndroidManifest.xml 修改为**"com.doubleyolk.richnotification.OppoPushService"**
+
+    ```xml
+    <service
+        android:name="com.doubleyolk.richnotification.OppoPushService"
+        android:permission="com.heytap.mcs.permission.SEND_PUSH_MESSAGE"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="com.heytap.mcs.action.RECEIVE_MCS_MESSAGE"/>
+            <action android:name="com.heytap.msp.push.RECEIVE_MCS_MESSAGE"/>
+        </intent-filter>
+    </service>
+    ```
+
+
 
 ## 使用
 
 ```javascript
-import RNRichNotification from 'react-native-rich-notification';
+import RichNotification, {
+  InitPushConfig,
+} from 'react-native-rich-notification';
+import {
+  Platform,
+} from 'react-native';
 
-// TODO: What to do with the module?
-RNRichNotification;
+const App = ()=>{
+  
+  //各平台所需的配置参数
+  const initConfig: InitPushConfig = {
+    oppo: {
+      appKey: 'xxxxx',
+      appSecret: 'xxxxx',
+    },
+    meizu: {appId: 'xxxxx', appSecret: 'xxxxx'},
+  };
+  
+  useEffect(()=>{
+    if(Platform.OS === "android"){
+      //初始化推送服务,必须先初始化再调用其它方法
+			RichNotification.initPush(initConfig, (res: initPushCallback) => {
+        //获取设备注册ID
+        RichNotification.getRegisterId((res: DeviceRegisterInfo) => {
+          console.warn(res.brand, res.data);
+        });
+      });
+      
+      RichNotification.addNotificationTapListener((message: any) => {
+        console.warn('点击了推送消息', message);
+      });
+    }
+  },[])
+}
 ```
+
+
+
+## 方法
+
+#### **initPush()**
+
+初始化推送服务, 必须初始化后再调用其它方法。
+
+**参数**
+
+| 参数名 | 类型           | 必填 |
+| ------ | -------------- | ---- |
+| config | InitPushConfig | true |
+
+
+
+#### addNotificationTapListener()
+
+监听点击通知栏消息事件方法，包括app杀死后点击消息打开app，回调返回消息数据，消息体中的点击行为配置项必须是唤起MainActivity
+
+**消息配置**
+
+该方法需要后台在消息体中配置点击行为参数配合
+
+1. 华为 
+
+    `{click_action : 3}`
+
+2. oppo :
+
+    `{click_action_type:4, click_action_activity:"com.example.MainActivity"}`
+
+   com.example.MainActivity替换成你的MainActivity
+
+**参数**
+
+| 参数名   | 类型     | 必填  |
+| -------- | -------- | ----- |
+| callback | function | false |
+
+**例**
+
+```javascript
+RichNotification.addNotificationTapListener((message: any) => {
+  console.warn('点击了推送消息', message);
+});
+```
+
+
+
+#### addHuaweiRemoteMessageListener()
+
+监听华为的透传消息，回调返回消息数据
+
+**参数**
+
+| 参数名   | 类型     | 必填  |
+| -------- | -------- | ----- |
+| callback | function | false |
+
+**例**
+
+```javascript
+RichNotification.addHuaweiRemoteMessageListener((message: any) => {
+	console.warn('透传消息', message);
+});
+```
+
+
+
+#### removeListener()
+
+移除监听
+
+**例**
+
+```javascript
+const HwRemoteListener = RichNotification.addHuaweiRemoteMessageListener((message: any) => {
+	console.warn('透传消息', message);
+});
+
+RichNotification.removeListener(HwRemoteListener)
+```
+
+
+
+#### getRegisterId()
+
+获取设备注册ID，必须在初始化之后调用
+
+**参数**
+
+| 参数名   | 类型     | 必填  |
+| -------- | -------- | ----- |
+| callback | function | false |
+
+**例**
+
+```javascript
+RichNotification.getRegisterId((res: DeviceRegisterInfo) => {
+  console.warn(res.brand, res.data);
+});
+```
+
+
+
+#### setBadge()
+
+设置桌面角标，0即清除角标, 暂只华为支持
+
+**参数**
+
+| 参数名 | 类型   | 必填 |
+| ------ | ------ | ---- |
+| badge  | number | True |
+
+
+
+
+
+```javascript
+type ConfigInfo = {
+    appId?:string,
+    appKey?:string,
+    appSecret?:string
+}
+
+type InitPushConfig = {
+    /**
+     * 华为可不传
+     */
+    huawei?:ConfigInfo,
+    /**
+     * oppo需要appkey,appsecret
+     */
+    oppo?:ConfigInfo,
+    /**
+     * 魅族需要appid,appsecret
+     */
+    meizu?:ConfigInfo,
+    /**
+     * 荣耀不用传，需要在AndroidManifest.xml配置appid即可
+     */
+    honor?:ConfigInfo,
+    vivo?:ConfigInfo,
+    mi?:ConfigInfo,
+}
+```
+
+
+
+
+
