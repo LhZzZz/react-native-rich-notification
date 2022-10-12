@@ -111,6 +111,12 @@ export default class RichNotification {
      * @param callback 结果回调
      */
     static initPush(config:InitPushConfig,callback?:initPushCall)
+
+    /**
+     * 设置角标
+     * @param badge 0即清除
+     */
+    static setBadge(badge:number)
     
     
 }

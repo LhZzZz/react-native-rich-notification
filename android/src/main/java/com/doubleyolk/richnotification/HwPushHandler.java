@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -53,6 +54,24 @@ public class HwPushHandler{
         Intent intent = new Intent(context, HwPushService.class);
         context.bindService(intent, new MyServiceConnection(), Context.BIND_AUTO_CREATE);
         setAutoInitEnabled(true);
+    }
+
+    /**
+     * 设置角标数量
+     * @param badge
+     */
+    public void setBadge(int badge){
+        try {
+            String packageName = this.context.getApplicationContext().getPackageName();
+            Bundle extra = new Bundle();
+            extra.putString("package", packageName);
+            extra.putString("class", packageName+".MainActivity");
+            extra.putInt("badgenumber", badge);
+            context.getContentResolver().call(Uri.parse("content://com.huawei.android.launcher.settings/badge/"), "change_badge", null, extra);
+        }catch (Exception e){
+
+        }
+
     }
 
     /**

@@ -80,5 +80,13 @@ export default class RichNotification {
             callback&&callback({status:101,msg:msg})
         }        
     }
+
+    /**
+     * 设置角标
+     * @param badge 0清除角标
+     */
+    static setBadge(badge:number){
+        RNRichNotification.setBadge(badge)
+    }
 }
 
