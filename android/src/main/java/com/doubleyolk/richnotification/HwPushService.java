@@ -54,7 +54,7 @@ public class HwPushService extends HmsMessageService {
         public void handleMessage(Message msg) {
 
             switch (msg.what) {
-                case 100:
+                case HwPushHandler.MessageCode_initConnection:
                     Bundle data = msg.getData();
                     String msgContent = data.getString("msg");
                     Log.i(TAG, "-----服务端收到  客户端发来的消息 建立第一次沟通："+msgContent);
@@ -67,6 +67,24 @@ public class HwPushService extends HmsMessageService {
                     // 创建回复消息
                     Message replyMsg = Message.obtain();
                     replyMsg.what = HwPushHandler.MessageCode_initConnection;
+                    replyMsg.setData(replyData);
+                    try {
+                        client.send(replyMsg);
+                    } catch (RemoteException e) {
+                        Log.e("flag", "", e);
+                    }
+                    break;
+                case HwPushHandler.MessageCode_onNewToken:
+                    data = msg.getData();
+                    msgContent = data.getString("msg");
+                    Log.i(TAG, "-----服务端收到  客户端发来的消息："+msgContent);
+                    client = msg.replyTo;
+                    replyData = new Bundle();
+                    //返回token
+                    replyData.putString("token", HwPushService.this.deviceToken);
+                    // 创建回复消息
+                    replyMsg = Message.obtain();
+                    replyMsg.what = HwPushHandler.MessageCode_onNewToken;
                     replyMsg.setData(replyData);
                     try {
                         client.send(replyMsg);

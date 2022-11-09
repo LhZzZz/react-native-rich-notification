@@ -30,8 +30,8 @@ import org.json.JSONObject;
 public class HwPushHandler{
     private static final String TAG = "HwPushHandler";
     public static final int MessageCode_initConnection = 100;//表示与服务端第一次建立连接
-    public static final int MessageCode_onNewToken = 101;//表示与服务端第一次建立连接
-    public static final int MessageCode_onRemoteMessage = 102;//表示与服务端第一次建立连接
+    public static final int MessageCode_onNewToken = 101;//表示获取token
+    public static final int MessageCode_onRemoteMessage = 102;//收到透传消息
 
     private ReactContext context;
     private Messenger serviceMessenger;
@@ -110,6 +110,17 @@ public class HwPushHandler{
                 case MessageCode_onRemoteMessage:
                     handleRemoteMessage(msg);
                     break;
+                case MessageCode_onNewToken:
+                    bundle = msg.getData();
+                    String token = bundle.getString("token");
+                    Log.i(TAG, "客户端请求到了服务端返回的token:" + token);
+                    if (getTokenCallback!=null){
+                        WritableMap map = Arguments.createMap();
+                        map.putString("data",token);
+                        map.putString("brand", Build.BRAND);
+                        getTokenCallback.invoke(map);
+                        getTokenCallback = null;
+                    }
             }
         }
     }
@@ -162,13 +173,14 @@ public class HwPushHandler{
      */
     public void getDeviceToken(Callback callback) {
         getTokenCallback = callback;
-        if (this.deviceToken != null){
+        if (deviceToken != null){
             Log.i(TAG,"has cached token");
             WritableMap map = Arguments.createMap();
             map.putString("data",deviceToken);
             map.putString("brand", Build.BRAND);
             if (getTokenCallback!=null){
                 getTokenCallback.invoke(map);
+                getTokenCallback = null;
             }
             return;
         }
@@ -191,12 +203,37 @@ public class HwPushHandler{
                         map.putString("brand",Build.BRAND);
                         if (getTokenCallback!=null){
                             getTokenCallback.invoke(map);
+                            getTokenCallback = null;
                         }
+                    }else {
+                        //从服务端获取token
+                        getTokenFromService();
                     }
                 } catch (ApiException e) {
                     Log.e(TAG, "get token failed, " + e);
                 }
             }
         }.start();
+    }
+
+    /**
+     * 从服务端获取token，防止异步问题导致token为空的情况
+     */
+    public void getTokenFromService(){
+        try {
+            // 1 获取消息对象
+            Message msg = Message.obtain();
+            msg.what = MessageCode_onNewToken;
+            // 2 设置发送数据信息
+            Bundle data = new Bundle();
+            data.putString("msg", "客户端发来的获取token请求");
+            msg.setData(data);
+            // 3 设置服务端回复的Messenger 【告诉服务端回复的messager  它是客户端自己创建的】
+            msg.replyTo = ClentMessenger;
+            // 4 使用绑定服务后的创建的 Messager发送消息
+            serviceMessenger.send(msg);
+        } catch (RemoteException e) {
+            Log.e(TAG, "", e);
+        }
     }
 }
