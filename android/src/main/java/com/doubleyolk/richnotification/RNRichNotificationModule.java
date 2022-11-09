@@ -25,6 +25,9 @@ import com.hihonor.push.sdk.HonorPushClient;
 import com.huawei.hms.aaid.HmsInstanceId;
 import com.meizu.cloud.pushsdk.PushManager;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class RNRichNotificationModule extends ReactContextBaseJavaModule {
 
   private static final String TAG = "RNRichNotification";
@@ -49,6 +52,14 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
   @Override
   public String getName() {
     return "RNRichNotification";
+  }
+
+  @Override
+  public Map<String, Object> getConstants() {
+    final Map<String, Object> constants = new HashMap<>();
+    constants.put("brand", Build.BRAND);
+
+    return constants;
   }
 
   /**

@@ -2,7 +2,6 @@ import React from 'react-native'
 import {DeviceEventEmitter} from 'react-native'
 import { NativeModules } from 'react-native';
 const { RNRichNotification } = NativeModules;
-import DeviceInfo from 'react-native-device-info';
 import { DeviceRegisterInfo, getRegisterIdCallback, initPushCall, initPushCallback,InitPushConfig } from 'react-native-rich-notification';
 
 
@@ -67,7 +66,7 @@ export default class RichNotification {
      * @param callback 结果回调
      */
     static initPush(config:InitPushConfig,callback?:initPushCall){  
-        const Brand = DeviceInfo.getBrand().toLowerCase()          
+        const Brand = RNRichNotification.brand.toLowerCase()                  
         //华为和荣耀推送配置信息应配置在AndroidManifest.xml下           
         if(config[Brand]){
             const {appId = "", appKey = "", appSecret = ""} = config[Brand];
