@@ -110,6 +110,11 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
         oppoPushService.getRegisterId(callback);
         Log.i(TAG,"binder register"+ oppoBinder.getCachedRegisterId());
       }
+    }else {
+      WritableMap map = Arguments.createMap();
+      map.putString("data","");
+      map.putString("brand", Build.BRAND);
+      callback.invoke(map);
     }
   }
 
