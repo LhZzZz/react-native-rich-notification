@@ -1,6 +1,6 @@
 {
   "name": "react-native-rich-notification",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "集成Android各厂商推送服务，只支持Android端使用",
   "main": "index.js",
   "scripts": {
