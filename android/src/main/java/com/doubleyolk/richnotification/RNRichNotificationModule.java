@@ -21,6 +21,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.WritableMap;
 import com.heytap.msp.push.HeytapPushManager;
+import com.hihonor.push.sdk.HonorPushCallback;
 import com.hihonor.push.sdk.HonorPushClient;
 import com.huawei.hms.aaid.HmsInstanceId;
 import com.meizu.cloud.pushsdk.PushManager;
@@ -37,6 +38,10 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
 
   private OppoPushService oppoPushService;//oppo推送服务对象, 可访问service中的公共方法
   private OppoPushService.LocalBinder oppoBinder; //oppo的binder对象, 可访问service的资源
+
+  private VivoPushHandler vivoPushHandler;
+
+  private HonorPushHandler honorPushHandler;
 
   private String brand = Build.BRAND;;//手机厂商名
 
@@ -85,10 +90,15 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
       Intent intent = new Intent(reactContext, OppoPushService.class);
       reactContext.bindService(intent, oppoPushServiceConnection, Context.BIND_AUTO_CREATE);
       msg = "初始化oppo推送服务";
-    }else if (brand.equals("HORNOR")){
+    }else if (brand.equals("HONOR")){
       //初始化荣耀的推送服务
-      HonorPushClient.getInstance().init(this.reactContext, true);
+      honorPushHandler = new HonorPushHandler(reactContext);
+      honorPushHandler.initService();
       msg = "初始化荣耀的推送服务";
+    }else if(brand.equals("vivo")){
+      vivoPushHandler = new VivoPushHandler(reactContext);
+      vivoPushHandler.initService();
+      msg = "初始化vivo的推送服务";
     }
     map.putString("msg",msg);
     if (callback != null){
@@ -102,7 +112,6 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
    */
   @ReactMethod
   public void getRegisterId(Callback callback){
-    Log.i(TAG, Build.BRAND);
     if (brand.equals("HUAWEI")){
       hwPushHandler.getDeviceToken(callback);
     }else if (brand.equals("OPPO")){
@@ -110,6 +119,10 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
         oppoPushService.getRegisterId(callback);
         Log.i(TAG,"binder register"+ oppoBinder.getCachedRegisterId());
       }
+    }else if (brand.equals("HONOR")){
+      honorPushHandler.getRegisterId(callback);
+    }else if(brand.equals("vivo")){
+      vivoPushHandler.getRegisterId(callback);
     }else {
       WritableMap map = Arguments.createMap();
       map.putString("data","");
