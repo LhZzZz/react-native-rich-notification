@@ -2,5 +2,44 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.doubleyolk.richnotification">
 
+    <application>
+        <!--华为推送服务 -->
+        <service android:name="com.doubleyolk.richnotification.HwPushService" android:exported="false">
+            <intent-filter>
+                <action android:name="com.huawei.push.action.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+        <!-- Oppo推送services 兼容Q版本 -->
+        <service
+            android:name="com.doubleyolk.richnotification.OppoPushService"
+            android:permission="com.heytap.mcs.permission.SEND_PUSH_MESSAGE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.heytap.mcs.action.RECEIVE_MCS_MESSAGE"/>
+                <action android:name="com.heytap.msp.push.RECEIVE_MCS_MESSAGE"/>
+            </intent-filter>
+        </service>
+        <!--vivo 相关配置-->
+        <receiver android:name="com.doubleyolk.richnotification.VivoPushMessageReceiver"
+            android:exported="false">
+            <intent-filter>
+                <!--接收push消息-->
+                <action android:name="com.vivo.pushclient.action.RECEIVE"/>
+            </intent-filter>
+        </receiver>
+        <service
+            android:name="com.vivo.push.sdk.service.CommandClientService"
+            android:permission="com.push.permission.UPSTAGESERVICE"
+            android:exported="true"/>
+        <!-- 荣耀推送services -->
+        <service
+            android:name="com.doubleyolk.richnotification.HonorPushService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.hihonor.push.action.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+    </application>
+
 </manifest>
   

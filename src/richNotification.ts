@@ -71,7 +71,7 @@ export default class RichNotification {
         if(config[Brand]){
             const {appId = "", appKey = "", appSecret = ""} = config[Brand];
             RNRichNotification.initPush(appId, appKey,appSecret,callback)
-        }else if( Brand === "huawei" || Brand === "hornor"){
+        }else if( Brand === "huawei" || Brand === "honor"){
             RNRichNotification.initPush("", "","",callback)
         } else{
             const msg = '请提供'+Brand+'配置信息'
