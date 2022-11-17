@@ -39,6 +39,20 @@
                 <action android:name="com.hihonor.push.action.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+        <!-- 小米推送-->
+        <receiver
+            android:exported="true"
+            android:name="com.doubleyolk.richnotification.MiMessageReceiver">
+            <intent-filter>
+                <action android:name="com.xiaomi.mipush.RECEIVE_MESSAGE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.xiaomi.mipush.MESSAGE_ARRIVED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.xiaomi.mipush.ERROR" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
