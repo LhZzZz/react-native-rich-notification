@@ -1,6 +1,7 @@
 package com.doubleyolk.richnotification;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.vivo.push.model.UPSNotificationMessage;
 import com.vivo.push.model.UnvarnishedMessage;
@@ -13,6 +14,7 @@ public class VivoPushMessageReceiver extends OpenClientPushMessageReceiver {
 
     @Override
     public void onReceiveRegId(Context context, String regId) {
+        Log.i("VIVO Recived id",regId);
         super.onReceiveRegId(context, regId);
     }
 

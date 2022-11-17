@@ -40,8 +40,9 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
   private OppoPushService.LocalBinder oppoBinder; //oppo的binder对象, 可访问service的资源
 
   private VivoPushHandler vivoPushHandler;
-
   private HonorPushHandler honorPushHandler;
+  private MiMessageHandler miMessageHandler;
+
 
   private String brand = Build.BRAND;;//手机厂商名
 
@@ -99,7 +100,10 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
       vivoPushHandler = new VivoPushHandler(reactContext);
       vivoPushHandler.initService();
       msg = "初始化vivo的推送服务";
+    }else if (brand.equals("Xiaomi")){
+      miMessageHandler = new MiMessageHandler(reactContext);
     }
+    Log.i(TAG,brand);
     map.putString("msg",msg);
     if (callback != null){
       callback.invoke(map);
@@ -123,6 +127,8 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
       honorPushHandler.getRegisterId(callback);
     }else if(brand.equals("vivo")){
       vivoPushHandler.getRegisterId(callback);
+    }else if(brand.equals("Xiaomi")){
+      miMessageHandler.getRegisterId(callback);
     }else {
       WritableMap map = Arguments.createMap();
       map.putString("data","");
