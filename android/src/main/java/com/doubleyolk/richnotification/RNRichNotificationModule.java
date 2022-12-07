@@ -102,6 +102,7 @@ public class RNRichNotificationModule extends ReactContextBaseJavaModule {
       msg = "初始化vivo的推送服务";
     }else if (brand.equals("Xiaomi")){
       miMessageHandler = new MiMessageHandler(reactContext);
+      miMessageHandler.initService(appId,appKey);
     }
     Log.i(TAG,brand);
     map.putString("msg",msg);
